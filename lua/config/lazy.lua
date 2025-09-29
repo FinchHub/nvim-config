@@ -30,7 +30,7 @@ vim.opt.smartindent = true
 
 -- Filetype-specific overrides for the tab indents.
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "lua" },
+    pattern = { "lua", "html", "css" },
     callback = function()
         vim.opt_local.tabstop = 2
         vim.opt_local.softtabstop = 2

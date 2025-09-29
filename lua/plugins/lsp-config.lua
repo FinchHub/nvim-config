@@ -10,29 +10,38 @@ return {
   --Acts as a bridge between Mason and Neovim's built-in LSP client. Auto-installs LSP servers, matches Mason's
   --server names to config names expected by Neovim, and just makes the setup that much easier.
   { "mason-org/mason-lspconfig.nvim",
-    name = "mason-lspconfig",
-    opts = {
-      ensure_installed = {
-        "lua_ls",
-        "rust_analyzer",
-        "clangd",
-        "cssls",
-        "html",
-        "ts_ls",
-      },
-    },
+    config = function()
+      require("mason-lspconfig").setup({
+        ensure_installed = {
+          "lua_ls",
+          "rust_analyzer",
+          "clangd",
+          "cssls",
+          "html",
+          "ts_ls",
+        },
+        automatic_installation = true,
+      })
+    end,
   },
 
   --Plugin maintained by Neovim that provides easy configs for connecting to LSP servers. Just handles the boilerplate
   --So Neovim can actually connect to the LSP servers.
- { "neovim/nvim-lspconfig",
+  { "neovim/nvim-lspconfig" ,
     config = function()
-      local lspconfig = require("lspconfig")
+      local servers = {
+       "lua_ls",
+       "rust_analyzer",
+       "clangd",
+       "cssls",
+       "html",
+       "ts_ls",
+      }
 
-      lspconfig.lua_ls.setup({})
-      lspconfig.rust_analyzer.setup({})
-      lspconfig.clangd.setup({})
-    end
+      for _, server in ipairs(servers) do
+        vim.lsp.enable(server)
+      end
+    end,
   },
  
   --Complements LSP by providing better syntax highlighting and language parsing.
@@ -84,24 +93,25 @@ return {
   { 'nvim-telescope/telescope.nvim',
     tag = '0.1.8',
     branch = '0.1.x',
+    keys = {
+      { "<leader>tf", "<cmd>Telescope find_files<CR>", desc = "Telescope Find Files" },
+    },
     config = function()
         require('telescope').setup({
-          mappings = {
-        }
       })
     end,
   },
 
   -- For starting a live server when working with webpages.
-{
-  "barrett-ruth/live-server.nvim",
-  build = "pnpm add -g live-server",
-  keys = {
-    { "<leader>ls", "<cmd>LiveServerStart<CR>", desc = "Live Server: Start" },
-    { "<leader>lS", "<cmd>LiveServerStop<CR>", desc = "Live Server: Stop" },
+  {
+    "barrett-ruth/live-server.nvim",
+    build = "pnpm add -g live-server",
+    keys = {
+      { "<leader>ls", "<cmd>LiveServerStart<CR>", desc = "Live Server: Start" },
+      { "<leader>lS", "<cmd>LiveServerStop<CR>", desc = "Live Server: Stop" },
+    },
+    config = true,
   },
-  config = true,
-},
 
 
   -- Provides an interface that shows Nvim keybinds.
@@ -119,7 +129,53 @@ return {
         desc = "Buffer Local Keymaps (which-key)",
       },
     },
-  }
+  },
+
+  {
+  'stevearc/conform.nvim',
+    opts = {},
+    config = function()
+      require('conform').setup({
+        formatters_by_ft = {
+          html = { "html_beautify" },
+        },
+      })
+    end
+  },
+
+  -- Color picker utility for working with RGB/Hex/HSL
+  {
+    "max397574/colortils.nvim",
+    cmd = "Colortils",
+    keys = {
+       {"<leader>cp", "<cmd>Colortils picker<CR>", desc="colortils picker"},
+       {"<leader>cg", "<cmd>Colortils gradient<CR>", desc="colortils gradient"},
+      },
+    config = function()
+      require("colortils").setup({
+    register = "+",
+    color_preview =  "█ %s",
+    default_format = "hex",
+    default_color = "#000000",
+    border = "rounded",
+    mappings = {
+        increment = "l",
+        decrement = "h",
+        increment_big = "L",
+        decrement_big = "H",
+        min_value = "0",
+        max_value = "$",
+        set_register_default_format = "<cr>",
+        set_register_choose_format = "g<cr>",
+        replace_default_format = "<m-cr>",
+        replace_choose_format = "g<m-cr>",
+        export = "E",
+        set_value = "c",
+        transparency = "T",
+        choose_background = "B",
+        quit_window = { "q", "<esc>" }
+        }
+      })
+    end,
+  },
 }
-
-
