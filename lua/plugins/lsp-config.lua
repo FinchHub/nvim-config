@@ -229,17 +229,32 @@ return {
           lualine_theme = nil,
           tab_name = {
             name_fallback = function(tabid)
-              return tabid
+              local default_names = {
+                "Editor", "Editor", "Terminal", "Logs", "Other"
+              }
+              return default_names[tabid] or ("Tab " .. tabid)
             end,
           },
           buf_name = { mode = 'unique' },
         },
       })
 
-      vim.keymap.set('n', '<Tab>', ':TabbyNext<CR>', { noremap = true, silent = true })
-      vim.keymap.set('n', '<S-Tab>', ':TabbyPrev<CR>', { noremap = true, silent = true })
-      vim.keymap.set('n', '<C-Tab>', ':TabbyNext<CR>', { noremap = true, silent = true })
-      vim.keymap.set('n', '<C-S-Tab>', ':TabbyPrev<CR>', { noremap = true, silent = true })
+      -- Create a new tab
+      vim.keymap.set('n', '<leader>Tn', ':tabnew<CR>', { noremap = true, silent = true, desc = "New Tab" })
+
+      -- Jump to specific tab using numbers 1-9
+      for i = 1, 9 do
+          vim.keymap.set('n', '<leader>'..i, i..'gt', { noremap = true, silent = true, desc = "Go to Tab "..i })
+      end
+
+      -- Close current tab
+      vim.keymap.set('n', '<leader>Tc', ':tabclose<CR>', { noremap = true, silent = true, desc = "Close Tab" })
+
+      -- Rename current tab (Tabby function)
+      vim.keymap.set('n', '<leader>tr', function()
+          require('tabby.tabline').rename_tab()
+      end, { noremap = true, silent = true, desc = "Rename Tab" })
+
     end
   },
 
