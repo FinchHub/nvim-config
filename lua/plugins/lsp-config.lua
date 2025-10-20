@@ -43,22 +43,31 @@ return {
       end
     end,
   },
- 
+
   --Complements LSP by providing better syntax highlighting and language parsing.
   { "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
+    event = { "BufReadPre" },
     config = function()
         require("nvim-treesitter.configs").setup({
-            ensure_installed = { "c", "cpp", "lua", "rust", "vim", "html", "css", "javascript" },
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = false,
-            },
+            ensure_installed = { "c", "cpp", "lua", "rust", "vim", "html", "css", "javascript", "tsx", },
+            highlight = { enable = true, additional_vim_regex_highlighting = false },
             indent = { enable = true },
         })
     end,
   },
 
+  -- For automatically closing tags.
+  { "windwp/nvim-ts-autotag",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    event = { "BufReadPre" },
+    config = function()
+        require("nvim-ts-autotag").setup({
+            filetypes = { "html", "javascript", "javascriptreact", "typescriptreact", "tsx", "jsx" },
+        })
+    end,
+  },
+  
   --Handles code-completion. 
   { 'saghen/blink.cmp',
     dependencies = { 'rafamadriz/friendly-snippets' },
@@ -178,4 +187,62 @@ return {
       })
     end,
   },
+
+  -- Provides code folding. Keymapped for simple folding/unfolding with 'z'.
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = { "kevinhwang91/promise-async" },
+    event = { "BufReadPre" },
+    config = function()
+        -- ufo setup
+        require("ufo").setup()
+
+        -- ensure all folds are open by default
+        vim.o.foldlevel = 99
+        vim.o.foldlevelstart = 99
+        vim.o.foldenable = true
+
+        -- optional: map 'z' to toggle the fold under cursor
+        vim.keymap.set('n', 'z', 'za', { noremap = true, silent = true })
+    end,
+  },
+
+  -- For nvim tabs
+  {
+    "nanozuki/tabby.nvim",
+    event = "VeryLazy",
+    config = function()
+      vim.o.showtabline = 2
+
+      require('tabby').setup({
+        preset = 'active_wins_at_tail',
+        option = {
+          theme = {
+            fill = 'TabLineFill',
+            head = 'TabLine',
+            current_tab = 'TabLineSel',
+            tab = 'TabLine',
+            win = 'TabLine',
+            tail = 'TabLine',
+          },
+          nerdfont = true,
+          lualine_theme = nil,
+          tab_name = {
+            name_fallback = function(tabid)
+              return tabid
+            end,
+          },
+          buf_name = { mode = 'unique' },
+        },
+      })
+
+      vim.keymap.set('n', '<Tab>', ':TabbyNext<CR>', { noremap = true, silent = true })
+      vim.keymap.set('n', '<S-Tab>', ':TabbyPrev<CR>', { noremap = true, silent = true })
+      vim.keymap.set('n', '<C-Tab>', ':TabbyNext<CR>', { noremap = true, silent = true })
+      vim.keymap.set('n', '<C-S-Tab>', ':TabbyPrev<CR>', { noremap = true, silent = true })
+    end
+  },
+
+  -- nerd web devicons
+  { "nvim-tree/nvim-web-devicons", opts = {} },
 }
