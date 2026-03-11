@@ -1,15 +1,17 @@
 return {
-  
+
   --Mason is the plugin that downloads and manages LSP servers, formatters, linters, and debuggers.
   --Allows you to search and download whichever one you want.
-  { "mason-org/mason.nvim",
+  {
+    "mason-org/mason.nvim",
     name = "mason",
     opts = {}
   },
 
   --Acts as a bridge between Mason and Neovim's built-in LSP client. Auto-installs LSP servers, matches Mason's
   --server names to config names expected by Neovim, and just makes the setup that much easier.
-  { "mason-org/mason-lspconfig.nvim",
+  {
+    "mason-org/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = {
@@ -27,15 +29,16 @@ return {
 
   --Plugin maintained by Neovim that provides easy configs for connecting to LSP servers. Just handles the boilerplate
   --So Neovim can actually connect to the LSP servers.
-  { "neovim/nvim-lspconfig" ,
+  {
+    "neovim/nvim-lspconfig",
     config = function()
       local servers = {
-       "lua_ls",
-       "rust_analyzer",
-       "clangd",
-       "cssls",
-       "html",
-       "ts_ls",
+        "lua_ls",
+        "rust_analyzer",
+        "clangd",
+        "cssls",
+        "html",
+        "ts_ls",
       }
 
       for _, server in ipairs(servers) do
@@ -45,31 +48,34 @@ return {
   },
 
   --Complements LSP by providing better syntax highlighting and language parsing.
-  { "nvim-treesitter/nvim-treesitter",
+  {
+    "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     event = { "BufReadPre" },
     config = function()
-        require("nvim-treesitter.configs").setup({
-            ensure_installed = { "c", "cpp", "lua", "rust", "vim", "html", "css", "javascript", "tsx", },
-            highlight = { enable = true, additional_vim_regex_highlighting = false },
-            indent = { enable = true },
-        })
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = { "c", "cpp", "lua", "rust", "vim", "html", "css", "javascript", "tsx", },
+        highlight = { enable = true, additional_vim_regex_highlighting = false },
+        indent = { enable = true },
+      })
     end,
   },
 
   -- For automatically closing tags.
-  { "windwp/nvim-ts-autotag",
+  {
+    "windwp/nvim-ts-autotag",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     event = { "BufReadPre" },
     config = function()
-        require("nvim-ts-autotag").setup({
-            filetypes = { "html", "javascript", "javascriptreact", "typescriptreact", "tsx", "jsx" },
-        })
+      require("nvim-ts-autotag").setup({
+        filetypes = { "html", "javascript", "javascriptreact", "typescriptreact", "tsx", "jsx" },
+      })
     end,
   },
-  
-  --Handles code-completion. 
-  { 'saghen/blink.cmp',
+
+  --Handles code-completion.
+  {
+    'saghen/blink.cmp',
     dependencies = { 'rafamadriz/friendly-snippets' },
     version = '1.*',
     opts = {
@@ -79,7 +85,8 @@ return {
   },
 
   -- For managing terminal windows. ctrl+\ to open.
-  { "akinsho/toggleterm.nvim",
+  {
+    "akinsho/toggleterm.nvim",
     version = "*",
     config = function()
       require("toggleterm").setup({
@@ -88,26 +95,38 @@ return {
         direction = "horizontal",
       })
 
-    vim.keymap.set("n", "<leader>\\", function()
-      require("toggleterm").toggle()
-    end, { desc = "Toggle terminal" })
+      vim.keymap.set("n", "<leader>\\", function()
+        require("toggleterm").toggle()
+      end, { desc = "Toggle terminal" })
 
-    vim.keymap.set("t", "<leader>\\", function()
-      require("toggleterm").toggle()
-    end, { desc = "Toggle terminal", noremap = true })
-  end
+      vim.keymap.set("t", "<leader>\\", function()
+        require("toggleterm").toggle()
+      end, { desc = "Toggle terminal", noremap = true })
+    end
   },
 
   -- Telescope is a fuzzy finder file browser.
-  { 'nvim-telescope/telescope.nvim',
+  {
+    'nvim-telescope/telescope.nvim',
     tag = '0.1.8',
     branch = '0.1.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope-file-browser.nvim',
+    },
     keys = {
-      { "<leader>tf", "<cmd>Telescope find_files<CR>", desc = "Telescope Find Files" },
+      { "<leader>tf", "<cmd>Telescope find_files<CR>",   desc = "Telescope Find Files" },
+      { "<leader>tb", "<cmd>Telescope file_browser<CR>", desc = "Telescope File Browser" },
     },
     config = function()
-        require('telescope').setup({
+      require('telescope').setup({
+        extensions = {
+          file_browser = {
+            hijack_netrw = true,
+          },
+        },
       })
+      require('telescope').load_extension('file_browser')
     end,
   },
 
@@ -117,9 +136,11 @@ return {
     build = "pnpm add -g live-server",
     keys = {
       { "<leader>ls", "<cmd>LiveServerStart<CR>", desc = "Live Server: Start" },
-      { "<leader>lS", "<cmd>LiveServerStop<CR>", desc = "Live Server: Stop" },
+      { "<leader>lS", "<cmd>LiveServerStop<CR>",  desc = "Live Server: Stop" },
     },
-    config = true,
+    init = function()
+      vim.g.live_server = {}
+    end,
   },
 
 
@@ -141,14 +162,24 @@ return {
   },
 
   {
-  'stevearc/conform.nvim',
+    'stevearc/conform.nvim',
     opts = {},
     config = function()
       require('conform').setup({
         formatters_by_ft = {
           html = { "html_beautify" },
+          css = { "css_beautify" },
+          javascript = { "js_beautify" },
+        },
+        format_on_save = {
+          timeout_ms = 500,
+          lsp_format = "fallback",
         },
       })
+
+      vim.keymap.set({ "n", "v" }, "<leader>f", function()
+        require("conform").format({ async = true, lsp_format = "fallback" })
+      end, { desc = "Format buffer" })
     end
   },
 
@@ -157,32 +188,32 @@ return {
     "max397574/colortils.nvim",
     cmd = "Colortils",
     keys = {
-       {"<leader>cp", "<cmd>Colortils picker<CR>", desc="colortils picker"},
-       {"<leader>cg", "<cmd>Colortils gradient<CR>", desc="colortils gradient"},
-      },
+      { "<leader>cp", "<cmd>Colortils picker<CR>",   desc = "colortils picker" },
+      { "<leader>cg", "<cmd>Colortils gradient<CR>", desc = "colortils gradient" },
+    },
     config = function()
       require("colortils").setup({
-    register = "+",
-    color_preview =  "█ %s",
-    default_format = "hex",
-    default_color = "#000000",
-    border = "rounded",
-    mappings = {
-        increment = "l",
-        decrement = "h",
-        increment_big = "L",
-        decrement_big = "H",
-        min_value = "0",
-        max_value = "$",
-        set_register_default_format = "<cr>",
-        set_register_choose_format = "g<cr>",
-        replace_default_format = "<m-cr>",
-        replace_choose_format = "g<m-cr>",
-        export = "E",
-        set_value = "c",
-        transparency = "T",
-        choose_background = "B",
-        quit_window = { "q", "<esc>" }
+        register = "+",
+        color_preview = "█ %s",
+        default_format = "hex",
+        default_color = "#000000",
+        border = "rounded",
+        mappings = {
+          increment = "l",
+          decrement = "h",
+          increment_big = "L",
+          decrement_big = "H",
+          min_value = "0",
+          max_value = "$",
+          set_register_default_format = "<cr>",
+          set_register_choose_format = "g<cr>",
+          replace_default_format = "<m-cr>",
+          replace_choose_format = "g<m-cr>",
+          export = "E",
+          set_value = "c",
+          transparency = "T",
+          choose_background = "B",
+          quit_window = { "q", "<esc>" }
         }
       })
     end,
@@ -192,18 +223,25 @@ return {
   {
     "kevinhwang91/nvim-ufo",
     dependencies = { "kevinhwang91/promise-async" },
-    event = { "BufReadPre" },
+    event = { "BufReadPost" },
     config = function()
-        -- ufo setup
-        require("ufo").setup()
+      -- ufo setup
+      require("ufo").setup({
+        provider_selector = function(bufnr, filetype, buftype)
+          return { 'treesitter', 'indent' }
+        end
+      })
 
-        -- ensure all folds are open by default
-        vim.o.foldlevel = 99
-        vim.o.foldlevelstart = 99
-        vim.o.foldenable = true
+      --
+      -- ensure all folds are open by default
+      vim.o.foldlevel = 99
+      vim.o.foldlevelstart = 99
+      vim.o.foldenable = true
 
-        -- optional: map 'z' to toggle the fold under cursor
-        vim.keymap.set('n', 'z', 'za', { noremap = true, silent = true })
+      -- optional: map 'z' to toggle the fold under cursor
+      vim.keymap.set('n', '<CR>', 'za', { noremap = true, silent = true })
+      vim.keymap.set('n', '<leader>zO', 'zR', { desc = "Open all folds" })
+      vim.keymap.set('n', '<leader>zC', 'zM', { desc = "Close all folds" })
     end,
   },
 
@@ -244,7 +282,7 @@ return {
 
       -- Jump to specific tab using numbers 1-9
       for i = 1, 9 do
-          vim.keymap.set('n', '<leader>'..i, i..'gt', { noremap = true, silent = true, desc = "Go to Tab "..i })
+        vim.keymap.set('n', '<leader>' .. i, i .. 'gt', { noremap = true, silent = true, desc = "Go to Tab " .. i })
       end
 
       -- Close current tab
@@ -252,12 +290,15 @@ return {
 
       -- Rename current tab (Tabby function)
       vim.keymap.set('n', '<leader>tr', function()
-          require('tabby.tabline').rename_tab()
+        require('tabby.tabline').rename_tab()
       end, { noremap = true, silent = true, desc = "Rename Tab" })
-
     end
   },
 
   -- nerd web devicons
   { "nvim-tree/nvim-web-devicons", opts = {} },
+
+  -- Boilerplate
+  { "tokiory/neovim-boilerplate",  opts = {} },
+
 }
