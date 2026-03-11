@@ -21,6 +21,8 @@ return {
           "cssls",
           "html",
           "ts_ls",
+          "emmet_language_server",
+          "eslint",
         },
         automatic_installation = true,
       })
@@ -39,11 +41,20 @@ return {
         "cssls",
         "html",
         "ts_ls",
+        "emmet_language_server",
+        "eslint",
       }
 
       for _, server in ipairs(servers) do
         vim.lsp.enable(server)
       end
+
+      vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = "LSP Hover" })
+      vim.lsp.config('*', {
+        capabilities = vim.lsp.protocol.make_client_capabilities(),
+      })
+
+      vim.o.winborder = 'rounded'
     end,
   },
 
@@ -161,15 +172,16 @@ return {
     },
   },
 
+
   {
     'stevearc/conform.nvim',
     opts = {},
     config = function()
       require('conform').setup({
         formatters_by_ft = {
-          html = { "html_beautify" },
-          css = { "css_beautify" },
-          javascript = { "js_beautify" },
+          html = { "prettier" },
+          css = { "prettier" },
+          javascript = { "prettier" },
         },
         format_on_save = {
           timeout_ms = 500,
@@ -298,7 +310,6 @@ return {
   -- nerd web devicons
   { "nvim-tree/nvim-web-devicons", opts = {} },
 
-  -- Boilerplate
-  { "tokiory/neovim-boilerplate",  opts = {} },
+
 
 }
