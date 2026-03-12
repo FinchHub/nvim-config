@@ -172,7 +172,7 @@ return {
     },
   },
 
-
+  -- Code formatting
   {
     'stevearc/conform.nvim',
     opts = {},
@@ -202,6 +202,8 @@ return {
     keys = {
       { "<leader>cp", "<cmd>Colortils picker<CR>",   desc = "colortils picker" },
       { "<leader>cg", "<cmd>Colortils gradient<CR>", desc = "colortils gradient" },
+      { "<leader>cl", "<cmd>Colortils lighten<CR>",  desc = "colortils lighten" },
+      { "<leader>cd", "<cmd>Colortils darken<CR>",   desc = "colortils darken" },
     },
     config = function()
       require("colortils").setup({
@@ -227,6 +229,19 @@ return {
           choose_background = "B",
           quit_window = { "q", "<esc>" }
         }
+      })
+    end,
+  },
+
+  -- Provides visual colors for color codes.
+  {
+    "brenoprata10/nvim-highlight-colors",
+    event = "BufReadPost",
+    config = function()
+      require("nvim-highlight-colors").setup({
+        render = "virtual", -- or "foreground" or "virtual"
+        virtual_symbol = '■',
+        virtual_symbol_position = 'inline',
       })
     end,
   },
