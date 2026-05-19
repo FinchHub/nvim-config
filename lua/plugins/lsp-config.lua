@@ -59,28 +59,28 @@ return {
   },
 
   --Complements LSP by providing better syntax highlighting and language parsing.
-    {
-      "nvim-treesitter/nvim-treesitter",
-      branch = "main",
-      build = ":TSUpdate",
-      lazy = false,
-      config = function()
-        require("nvim-treesitter").install({
-          "c", "cpp", "lua", "rust", "vim", "vimdoc",
-          "html", "css", "javascript", "typescript", "tsx",
-        })
+  {
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    build = ":TSUpdate",
+    lazy = false,
+    config = function()
+      require("nvim-treesitter").install({
+        "c", "cpp", "lua", "rust", "vim", "vimdoc",
+        "html", "css", "javascript", "typescript", "tsx",
+      })
 
-        vim.api.nvim_create_autocmd("FileType", {
-          callback = function(args)
-            local ft = vim.bo[args.buf].filetype
-            local lang = vim.treesitter.language.get_lang(ft)
-            if lang and pcall(vim.treesitter.start, args.buf, lang) then
-              vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-            end
-          end,
-        })
-      end,
-    },
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          local ft = vim.bo[args.buf].filetype
+          local lang = vim.treesitter.language.get_lang(ft)
+          if lang and pcall(vim.treesitter.start, args.buf, lang) then
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+    end,
+  },
 
   -- For automatically closing tags.
   {
