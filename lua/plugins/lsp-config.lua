@@ -22,6 +22,7 @@ return {
           "html",
           "ts_ls",
           "emmet_language_server",
+          "jsonls",
           "eslint",
         },
         automatic_installation = true,
